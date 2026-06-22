@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Gantt Admin Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ─── DESIGN SYSTEM: OBSIDIAN FLOW (Architectural Chronograph) ─── */
+:root {
+  /* DARK THEME (Premium Executive) */
+  --bg: #0a0a0a; 
+  --surface: #121212;
+  --surface-low: #1a1a1a;
+  --surface-high: #242424;
+  --surface-highest: #333333;
+  
+  --primary: #10b981; 
+  --primary-hover: #059669;
+  --primary-container: rgba(16, 185, 129, 0.15);
+  --primary-gradient: #10b981;
+  
+  --text: #ededed;
+  --text-muted: #a1a1aa;
+  
+  --border-subtle: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.12);
+  --border-focus: #10b981;
+  
+  --danger: #ef4444; 
+  --success: #10b981;
+  
+  --shadow-float: 0 12px 32px rgba(0,0,0,0.5);
+  --glass-bg: rgba(18, 18, 18, 0.85);
+  
+  --font-display: 'Manrope', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+[data-theme="light"] {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --surface-low: #f4f4f5;
+  --surface-high: #e4e4e7;
+  --surface-highest: #d4d4d8;
+  
+  --primary: #0f172a;
+  --primary-hover: #1e293b;
+  --primary-container: #e2e8f0;
+  --primary-gradient: #0f172a;
+  
+  --text: #0f172a;
+  --text-muted: #64748b;
+
+  --border-subtle: rgba(0,0,0,0.06);
+  --border: rgba(0,0,0,0.15);
+  --border-focus: #0f172a;
+  
+  --shadow-float: 0 12px 24px rgba(0,0,0,0.08);
+  --glass-bg: rgba(255, 255, 255, 0.9);
+}
+
+/* ─── RESET & BASE ─── */
+*, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+html, body { height: 100%; font-family: var(--font-body); background: var(--bg); color: var(--text); font-size: 14px; -webkit-font-smoothing: antialiased; letter-spacing: 0.2px; transition: background 0.3s ease, color 0.3s ease; }
+button, input, select { font-family: inherit; color: inherit; }
+a { color: var(--primary); text-decoration: none; }
+
+/* ─── UTILS ─── */
+.hide { display: none !important; }
+.fade-in { animation: fadeIn 0.3s ease forwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ─── BUTTONS ─── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 18px; border: none; border-radius: 6px; font-weight: 600; font-size: 13px;
+  cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: var(--font-display); letter-spacing: 0.3px; outline: none; text-transform: uppercase;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(1px) scale(0.98); }
+
+.btn-primary { 
+  background: var(--primary); color: #fff; 
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.btn-primary:hover { background: var(--primary-hover); }
+
+.btn-ghost {
+  background: var(--surface-low); color: var(--text); border: 1px solid var(--border-subtle);
+}
+.btn-ghost:hover { background: var(--surface-high); border-color: var(--border); }
+
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { filter: brightness(1.1); }
+
+.btn-icon { padding: 8px; border-radius: 50%; width: 36px; height: 36px; }
+
+/* ─── NAVBAR / HEADER ─── */
+.navbar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 24px;
+}
+.nav-brand {
+  font-family: var(--font-display); font-size: 18px; font-weight: 800; letter-spacing: -0.5px;
+  display: flex; align-items: center; gap: 10px; cursor: pointer;
+}
+.nav-brand span { color: var(--text-muted); font-weight: 500; font-size: 14px; }
+.nav-actions { display: flex; gap: 12px; align-items: center; }
+
+/* ─── DASHBOARD VIEW ─── */
+#view-dashboard { padding: 32px 24px; max-width: 1200px; margin: 0 auto; }
+.dash-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; }
+.dash-header h1 { font-family: var(--font-display); font-size: 32px; font-weight: 700; letter-spacing: -1px; }
+.dash-header p { color: var(--text-muted); margin-top: 6px; font-size: 14px; }
+
+.project-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;
+}
+.p-card {
+  background: var(--surface); border: 1px solid var(--border-subtle); border-radius: 12px;
+  padding: 20px; cursor: pointer; transition: all 0.2s; position: relative;
+  display: flex; flex-direction: column; min-height: 180px;
+}
+.p-card:hover { 
+  transform: translateY(-4px); border-color: var(--border); box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+  background: var(--surface-high);
+}
+.p-card-date { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.p-card-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
+.p-card-sub { font-size: 13px; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1; margin-bottom: 20px;}
+.p-card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 16px; }
+.p-status { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; }
+.p-status::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--primary); }
+
+.p-card-actions { display: flex; gap: 6px; }
+
+/* ─── RESPONSABLES / CHIPS ─── */
+.chip-group { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.chip { background: var(--surface-high); color: var(--text); font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-subtle); display: inline-flex; align-items: center; letter-spacing: 0.2px; }
+.chip-av { background: var(--primary); color: #fff; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; margin-right: 4px; }
+.chk-label { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; padding: 4px 8px; background: var(--surface-low); border-radius: 4px; border: 1px solid var(--border-subtle); transition: 0.2s;}
+.chk-label:hover { background: var(--surface-high); }
+
+/* ─── EDITOR VIEW ─── */
+#view-editor { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+/* Editor Toolbar */
+.editor-toolbar {
+  background: var(--surface); border-bottom: 1px solid var(--border-subtle);
+  padding: 12px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; z-index: 10;
+}
+.back-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; padding: 4px; border-radius: 6px; transition: 0.2s; }
+.back-btn:hover { color: var(--text); background: var(--surface-high); }
+
+.project-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.proj-title-input {
+  font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--text);
+  background: transparent; border: none; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  outline: none; padding: 2px 4px; border-radius: 4px; margin-left: -4px; transition: background 0.2s;
+}
+.proj-title-input:hover, .proj-title-input:focus { background: var(--surface-low); }
+
+.editor-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.date-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.date-input {
+  padding: 6px 10px; border: 1px solid var(--border-subtle); border-radius: 6px;
+  background: var(--surface-low); color: var(--text); font-size: 13px; font-family: var(--font-body);
+  outline: none; transition: 0.2s;
+}
+.date-input:focus { border-color: var(--border-focus); background: var(--surface-high); }
+.toolbar-sep { width: 1px; height: 24px; background: var(--border-subtle); margin: 0 4px; }
+
+/* Gantt Scroll Container */
+.gantt-wrapper { flex: 1; overflow: hidden; display: flex; flex-direction: column; background: var(--bg); position: relative; }
+.gantt-scroll {
+  flex: 1; overflow-x: auto; overflow-y: auto; padding: 0 0 60px 0;
+  -webkit-overflow-scrolling: touch;
+}
+.gantt-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.gantt-scroll::-webkit-scrollbar-track { background: transparent; }
+.gantt-scroll::-webkit-scrollbar-thumb { background: var(--surface-highest); border-radius: 4px; }
+
+/* ─── GANTT TABLE (Obsidian Flow style) ─── */
+table.gantt { 
+  border-collapse: separate; border-spacing: 0; min-width: 100%; table-layout: fixed;
+  --label-w: 280px; --week-w: 56px; --row-h: 44px; --bar-h: 24px;
+}
+/* Sticky Header & Col */
+table.gantt thead { position: sticky; top: 0; z-index: 20; }
+.c-label {
+  position: sticky; left: 0; z-index: 10; width: var(--label-w); max-width: var(--label-w);
+  padding: 0 16px; text-align: left; vertical-align: middle;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  background: var(--surface); border-right: 1px solid var(--border-subtle);
+  transition: background 0.2s;
+}
+.c-week { width: var(--week-w); max-width: var(--week-w); text-align: center; vertical-align: middle; padding: 0; position: relative; }
+
+/* Header styles */
+thead th.c-label {
+  height: 56px; font-family: var(--font-display); font-size: 12px; font-weight: 700; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 1px; background: var(--surface-low); z-index: 25; border-bottom: 1px solid var(--border-subtle);
+}
+thead th.c-week {
+  height: 56px; background: var(--surface-low); border-bottom: 1px solid var(--border-subtle); border-right: 1px solid var(--border-subtle);
+}
+th.c-week .wn { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+th.c-week .wd { font-size: 9px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; }
+th.c-week.cur-w { background: var(--surface-high); }
+th.c-week.cur-w .wn { color: var(--primary); }
+th.c-week.cur-w::after { content:''; position:absolute; bottom:0; left:0; right:0; height:3px; background: var(--primary); }
+
+/* Row Base */
+tr td { border-bottom: 1px solid var(--border-subtle); border-right: 1px solid var(--border-subtle); }
+tr:last-child td { border-bottom: none; }
+
+/* Section Row */
+tr.r-section td {
+  background: var(--surface-low); color: var(--text-muted); font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.5px; height: 32px; font-family: var(--font-display);
+}
+tr.r-section td.c-label { z-index: 15; }
+
+/* Stage Row */
+tr.r-stage td.c-label {
+  height: var(--row-h); font-size: 13px; font-weight: 600; color: #fff;
+  border-right: none; position: relative;
+}
+tr.r-stage:hover td.c-label { filter: brightness(1.2); cursor: pointer; }
+
+/* Item / Subtask Row */
+tr.r-item td.c-label, tr.r-subtask td.c-label { height: var(--row-h); font-size: 13px; color: var(--text); font-weight: 500; }
+tr.r-subtask td.c-label { padding-left: 32px; color: var(--text-muted); font-size: 12px; }
+
+tr.r-item td.c-week, tr.r-subtask td.c-week, tr.r-stage td.c-week { background: var(--bg); transition: background 0.2s; }
+tr.r-item:nth-child(even) td.c-label, tr.r-item:nth-child(even) td.c-week { background: var(--surface); }
+tr.r-subtask:nth-child(even) td.c-label, tr.r-subtask:nth-child(even) td.c-week { background: var(--surface); }
+
+/* Hover Effects */
+tr.r-item:hover td.c-label, tr.r-item:hover td.c-week,
+tr.r-subtask:hover td.c-label, tr.r-subtask:hover td.c-week { background: var(--surface-high) !important; cursor: pointer; }
+tr.r-stage:hover td.c-week { background: var(--surface-low) !important; cursor: pointer; }
+
+/* Current week highlight */
+td.c-week.cur-col { background: var(--surface-low); }
+
+/* Gantt Bars */
+.c-week.bar-s .bv { margin-left: 6px; border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
+.c-week.bar-e .bv { margin-right: 6px; border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
+.c-week.bar-s.bar-e .bv { margin: 0 6px; border-radius: 6px; }
+.bv { 
+  height: var(--bar-h); margin: calc((var(--row-h) - var(--bar-h)) / 2) 0;
+  opacity: 0.95; transition: transform 0.2s; position: relative; z-index: 2;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+tr:hover .bv { transform: scaleY(1.1); opacity: 1; }
+
+/* Markers */
+.mk { display:flex; align-items:center; justify-content:center; height:var(--row-h); font-size:16px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+
+/* Row Actions (Hover over label) */
+.ra { display: none; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); gap: 4px; background: var(--surface-high); padding: 4px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 20;}
+tr:hover .ra { display: flex; }
+.ra button {
+  background: transparent; border: none; cursor: pointer; border-radius: 4px;
+  width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted); transition: all 0.2s;
+}
+.ra button:hover { background: var(--surface-highest); color: var(--text); }
+.ra .del:hover { background: var(--danger); color: #fff; }
+
+/* Add Subtask Button inline */
+.add-row td { padding: 0; height: 32px; background: var(--surface) !important; border-bottom: 1px solid var(--border-subtle); }
+.add-btn-row {
+  background: none; border: none; cursor: pointer; color: var(--text-muted);
+  font-size: 12px; font-weight: 500; padding: 0 32px; width: 100%; height: 100%; text-align: left;
+  transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+}
+.add-btn-row:hover { color: var(--primary); background: rgba(15, 98, 254, 0.05); }
+
+/* ─── LEGEND ─── */
+.legend {
+  padding: 16px 24px; display: flex; flex-wrap: wrap; gap: 20px;
+  font-size: 12px; font-weight: 500; color: var(--text-muted);
+  background: var(--surface); border-top: 1px solid var(--border-subtle);
+  position: sticky; bottom: 0; z-index: 20;
+}
+.li { display: flex; align-items: center; gap: 8px; }
+.lb { width: 14px; height: 14px; border-radius: 4px; display: inline-block; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
+/* ─── MODALS ─── */
+.overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+  z-index: 1000; align-items: center; justify-content: center; padding: 20px; opacity: 0; transition: opacity 0.2s;
+}
+.overlay.open { display: flex; opacity: 1; }
+.mbox {
+  background: var(--surface); border: 1px solid var(--border-subtle); border-radius: 16px;
+  padding: 32px; width: 100%; max-width: 480px; box-shadow: var(--shadow-float);
+  transform: translateY(20px) scale(0.95); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.overlay.open .mbox { transform: translateY(0) scale(1); }
+
+.mbox h3 { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 24px; }
+
+.fg { margin-bottom: 20px; }
+.fg label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.fg input, .fg select, .fg textarea {
+  width: 100%; padding: 12px 14px; border: 1px solid var(--border);
+  border-radius: 8px; font-size: 14px; font-family: var(--font-body);
+  background: var(--surface-low); color: var(--text);
+  transition: all 0.2s; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+.fg input:focus, .fg select:focus, .fg textarea:focus { border-color: var(--border-focus); background: var(--surface-high); box-shadow: 0 0 0 3px rgba(15, 98, 254, 0.15); }
+.fg input[type=color] { height: 46px; cursor: pointer; padding: 4px; }
+.frow { display: flex; gap: 16px; }
+.frow .fg { flex: 1; }
+
+.mactions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 32px; }
+
+/* ─── TOASTS ─── */
+#toast-container { position: fixed; bottom: 32px; right: 32px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+.toast {
+  background: var(--surface-highest); color: var(--text); padding: 12px 20px; border-radius: 8px;
+  font-size: 13px; font-weight: 600; box-shadow: var(--shadow-float); border: 1px solid var(--border-subtle);
+  animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1), toastOut 0.4s ease 2.5s forwards;
+}
+@keyframes toastIn { from { opacity:0; transform:translateY(16px) scale(0.9); } to { opacity:1; transform:none; } }
+@keyframes toastOut { from { opacity:1; transform:scale(1); } to { opacity:0; transform:translateY(-8px) scale(0.9); } }
+
+/* ─── PRINT & RESPONSIVE ─── */
+.print-header { display: none; }
+@media print {
+  .navbar, .editor-toolbar, .ra, .add-row, .mactions, #toast-container, .btn { display: none !important; }
+  body, html { background: #fff; color: #000; }
+  :root { --bg:#fff; --surface:#fff; --surface-low:#f9f9f9; --border-subtle:#ddd; --text:#000; --text-muted:#444; }
+  table.gantt { zoom: 0.62; }
+  .gantt-wrapper { overflow: visible; height: auto; }
+  .legend { display: flex !important; position: static !important; border-top: 1px solid #ddd; }
+  .print-header {
+    display: block !important; padding: 8px 16px 14px; border-bottom: 2px solid #0f172a; margin-bottom: 10px;
+  }
+  .print-header h1 { font-family: var(--font-display); font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 4px; }
+  .print-header p { font-size: 10px; color: #444; line-height: 1.4; }
+}
+
+@media (max-width: 768px) {
+  table.gantt { --label-w: 180px; --week-w: 48px; }
+  .editor-toolbar { padding: 12px; flex-direction: column; align-items: flex-start; gap: 12px; }
+  .editor-actions { width: 100%; justify-content: space-between; flex-wrap: wrap; }
+  .dash-header { flex-direction: column; align-items: flex-start; }
+  .project-grid { grid-template-columns: 1fr; }
+  .mbox { padding: 20px; }
+}
+
+</style>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<!-- ─── NAVBAR ─── -->
+<nav class="navbar">
+  <div class="nav-brand" onclick="App.goDashboard()">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18h18"/><path d="M3 12h18"/><path d="M3 6h18"/><path d="M8 6v12"/><path d="M16 6v12"/></svg>
+    Gantt Admin <span>Pro</span>
+  </div>
+  <div class="nav-actions">
+    <button class="btn btn-ghost hide" onclick="App.teamModal()" id="navTeamBtn" title="Configurar Equipo">👥 Equipo</button>
+    <button class="btn btn-icon btn-ghost" onclick="App.toggleTheme()" title="Cambiar tema" id="themeToggleBtn">
+      🌙
+    </button>
+    <button class="btn btn-primary" onclick="App.goDashboard(); setTimeout(App.newProjectModal, 100)" id="navNewBtn">
+      + Nuevo Proyecto
+    </button>
+  </div>
+</nav>
+
+<!-- ─── DASHBOARD VIEW ─── -->
+<div id="view-dashboard">
+  <div class="dash-header fade-in">
+    <div>
+      <h1>Tus Proyectos</h1>
+      <p>Administra y visualiza cartas Gantt con precisión arquitectónica.</p>
+    </div>
+    <button class="btn btn-primary" onclick="App.newProjectModal()">+ Crear Proyecto Gantt</button>
+  </div>
+  
+  <div class="project-grid fade-in" id="projectGrid">
+    <!-- Cards will be rendered here -->
+  </div>
+</div>
+
+<!-- ─── EDITOR VIEW ─── -->
+<div id="view-editor" class="hide fade-in">
+  <div class="editor-toolbar">
+    <button class="back-btn" onclick="App.goDashboard()" title="Volver a proyectos">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+    
+    <div class="project-meta">
+      <input class="proj-title-input" id="projectTitle" type="text" oninput="Editor.onTitleChange(this.value)" onblur="Editor.saveData()">
+      <div style="font-size: 11px; color: var(--text-muted); padding-left: 4px;" id="projectSubtitle">...</div>
+    </div>
+    
+    <div class="editor-actions">
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <span class="date-label">Inicio S1:</span>
+        <input type="date" id="startInput" class="date-input" oninput="Editor.onDateChange(this.value)">
+      </div>
+      <div class="toolbar-sep"></div>
+      <button class="btn btn-ghost" onclick="Editor.addStage()">+ Etapa</button>
+      <button class="btn btn-icon btn-ghost" onclick="window.print()" title="Exportar a PDF">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      </button>
+      <button class="btn btn-primary" onclick="Editor.saveDataUI()">Guardar</button>
+      <button class="btn btn-icon btn-danger" onclick="Editor.deleteCurrentProject()" title="Eliminar Proyecto">🗑</button>
+    </div>
+  </div>
+
+  <div class="gantt-wrapper">
+    <div id="printHeader" class="print-header">
+      <h1 id="phTitle"></h1>
+      <p id="phSub"></p>
+    </div>
+    <div class="gantt-scroll">
+      <div id="gc"></div>
+    </div>
+    <div id="leg" class="legend"></div>
+  </div>
+</div>
+
+<!-- ─── NEW PROJECT MODAL ─── -->
+<div class="overlay" id="newProjectModal">
+  <div class="mbox">
+    <h3>✨ Nuevo Proyecto Gantt</h3>
+    <div class="fg">
+      <label>Título del proyecto</label>
+      <input type="text" id="npTitle" placeholder="Ej: Expansión Metro Neo-Tokyo">
+    </div>
+    <div class="fg">
+      <label>Descripción / Subtítulo</label>
+      <textarea id="npSub" rows="2" placeholder="Breve descripción..."></textarea>
+    </div>
+    <div class="frow">
+      <div class="fg">
+        <label>Fecha de inicio (S1)</label>
+        <input type="date" id="npDate">
+      </div>
+      <div class="fg">
+        <label>Total de Semanas</label>
+        <input type="number" id="npWeeks" value="12" min="4" max="52">
+      </div>
+    </div>
+    <div class="mactions">
+      <button class="btn btn-ghost" onclick="App.closeModals()">Cancelar</button>
+      <button class="btn btn-primary" onclick="App.createProject()">Crear Proyecto</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── EDIT ROW MODAL ─── -->
+<div class="overlay" id="editModal">
+  <div class="mbox">
+    <h3 id="mtitle">✏ Editar Fila</h3>
+    <div class="fg">
+      <label>Etiqueta / Nombre</label>
+      <input type="text" id="eLabel">
+    </div>
+    <div id="eWeeks"></div>
+    <div class="fg" id="eAssigneesWrap" style="margin-top:20px; display:none;">
+      <label>Responsables de la tarea</label>
+      <div id="eAssigneesList" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;"></div>
+    </div>
+    <div class="fg" id="eColorWrap" style="margin-top: 20px;">
+      <label>Color</label>
+      <input type="color" id="eColor">
+    </div>
+    <div class="mactions" style="justify-content: space-between;">
+      <button class="btn btn-danger" id="delBtn" onclick="Editor.doDelete()">Eliminar</button>
+      <div style="display:flex; gap:12px;">
+        <button class="btn btn-ghost" onclick="App.closeModals()">Cancelar</button>
+        <button class="btn btn-primary" onclick="Editor.doSave()">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ADD STAGE MODAL ─── -->
+<div class="overlay" id="stageModal">
+  <div class="mbox">
+    <h3>＋ Nueva Etapa</h3>
+    <div class="fg">
+      <label>Nombre de la etapa</label>
+      <input type="text" id="sLabel" placeholder="Ej: Etapa 1: Planificación">
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Semana inicial</label><select id="sS"></select></div>
+      <div class="fg"><label>Semana final</label><select id="sE"></select></div>
+    </div>
+    <div class="fg">
+      <label>Color Principal</label>
+      <input type="color" id="sColor" value="#0F62FE">
+    </div>
+    <div class="mactions">
+      <button class="btn btn-ghost" onclick="App.closeModals()">Cancelar</button>
+      <button class="btn btn-primary" onclick="Editor.doAddStage()">Crear Etapa</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TEAM MODAL ─── -->
+<div class="overlay" id="teamModal">
+  <div class="mbox">
+    <h3>👥 Equipo del Proyecto</h3>
+    <div style="margin-bottom: 16px; font-size: 13px; color: var(--text-muted)">Añade responsables para asignarlos a las tareas de la carta Gantt.</div>
+    <div class="fg" style="display:flex; gap:8px; margin-bottom: 0;">
+      <input type="text" id="newMemberName" placeholder="Nombre completo o Iniciales" maxlength="20" onkeypress="if(event.key==='Enter') Editor.doAddMember()">
+      <button class="btn btn-primary" onclick="Editor.doAddMember()">Agregar</button>
+    </div>
+    <div id="teamList" style="display:flex; flex-direction:column; gap:8px; margin-top: 16px; max-height: 200px; overflow-y: auto;"></div>
+    <div class="mactions">
+      <button class="btn btn-primary" onclick="App.closeModals()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================================================================
+//  GLOBAL UTILS
+// ================================================================
+function guid() { return 'id_' + Math.random().toString(36).substr(2, 9); }
+function deep(o) { return JSON.parse(JSON.stringify(o)); }
+function toast(msg, type='info') {
+  const c = document.getElementById('toast-container');
+  const e = document.createElement('div');
+  e.className = 'toast';
+  if(type==='success') e.style.borderLeft = '3px solid var(--success)';
+  if(type==='error') e.style.borderLeft = '3px solid var(--danger)';
+  e.textContent = msg;
+  c.appendChild(e);
+  setTimeout(()=>e.remove(), 2900);
+}
+function parseD(s) { if(!s)return new Date(); const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+function fmt(d) { return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0'); }
+
+// ================================================================
+//  APP STATE & DATA MIGRATION
+// ================================================================
+const STORE_KEY = 'gantt_pro_data';
+const OLD_KEY = 'gantt_lhd_v2'; // to migrate original data
+
+const DefaultProjectTemplate = {
+  title: 'Nuevo Proyecto Gantt', subtitle: '', startDate: new Date().toISOString().split('T')[0], nw: 16, 
+  members: [],
+  rows: [
+    { id: guid(), t: 'stage', lb: 'Etapa 1: Levantamiento de información', s: 1, e: 4, clr: '#10b981' },
+    { id: guid(), t: 'stage', lb: 'Etapa 2: Diagnóstico de la situación actual', s: 4, e: 7, clr: '#0f172a' },
+    { id: guid(), t: 'stage', lb: 'Etapa 3: Análisis de datos', s: 7, e: 10, clr: '#f59e0b' },
+    { id: guid(), t: 'stage', lb: 'Etapa 4: Diseño de la propuesta de mejora', s: 10, e: 13, clr: '#3b82f6' },
+    { id: guid(), t: 'stage', lb: 'Etapa 5: Desarrollo de herramienta de apoyo', s: 12, e: 14, clr: '#8b5cf6' },
+    { id: guid(), t: 'stage', lb: 'Etapa 6: Evaluación del impacto y conclusiones', s: 14, e: 16, clr: '#ef4444' }
+  ]
+};
+
+
+const LHD_PROJECT = {
+  id: 'proj_lhd_ein9947',
+  title: 'Carta Gantt — Plan de Trabajo del Proyecto',
+  subtitle: 'Optimización del Sistema de Gestión del Backlog de Mantenimiento LHD · CODELCO · Proyecto de Título EIN9947 · Grupo 03 · UDLA 2026',
+  startDate: '2026-03-09',
+  nw: 17,
+  members: ['Araya','Arrieta','Espinoza','Urrutia'],
+  rows: [
+    { id:'sec_hitos', t:'section', lb:'HITOS DEL CURSO Y REUNIONES' },
+    { id:'h1',  t:'item', mt:'tri', lb:'Reunión sincrónica 1',            w:1,  clr:'#ef4444' },
+    { id:'h2',  t:'item', mt:'tri', lb:'Reunión sincrónica 2',            w:5,  clr:'#ef4444' },
+    { id:'h3',  t:'item', mt:'tri', lb:'Reunión sincrónica 3',            w:10, clr:'#ef4444' },
+    { id:'h4',  t:'item', mt:'dia', lb:'Reunión c/guía 1 — Anteproyecto', w:4,  clr:'#0F62FE' },
+    { id:'h5',  t:'item', mt:'dia', lb:'Reunión c/guía 2 — Cátedra 1',    w:6,  clr:'#0F62FE' },
+    { id:'h6',  t:'item', mt:'dia', lb:'Reunión c/guía 3 — Cátedra 2',    w:14, clr:'#0F62FE' },
+    { id:'h7',  t:'item', mt:'dia', lb:'Reunión c/guía 4 — Examen',       w:16, clr:'#0F62FE' },
+    { id:'h8',  t:'item', mt:'dot', lb:'Entrega Anteproyecto',            w:4,  clr:'#dbe1ff' },
+    { id:'h9',  t:'item', mt:'bar', lb:'Entrega Cátedra 1',               s:7, e:8, clr:'#94a3b8' },
+    { id:'h10', t:'item', mt:'dot', lb:'Entrega Cátedra 2',               w:14, clr:'#dbe1ff' },
+    { id:'h11', t:'item', mt:'dot', lb:'Examen 1 — Informe escrito',      w:16, clr:'#dbe1ff' },
+    { id:'h12', t:'item', mt:'bar', lb:'Examen 2 — Presentación oral',    s:16, e:17, clr:'#94a3b8' },
+
+    { id:'sec_etapas', t:'section', lb:'ETAPAS DEL PROYECTO' },
+
+    { id:'e1', t:'stage', lb:'Etapa 1: Levantamiento de información', s:1, e:4, clr:'#10b981' },
+    { id:'e1_s1', t:'sub', lb:'Recopilación de datos OT / SAP',              s:1, e:3, clr:'#10b981', pid:'e1' },
+    { id:'e1_s2', t:'sub', lb:'Obtención de información de backlog',          s:1, e:3, clr:'#10b981', pid:'e1' },
+    { id:'e1_s3', t:'sub', lb:'Revisión reglamentos / normativa',            s:2, e:3, clr:'#10b981', pid:'e1' },
+    { id:'e1_s4', t:'sub', lb:'Disponibilidad de equipos',                   s:2, e:4, clr:'#10b981', pid:'e1' },
+    { id:'e1_s5', t:'sub', lb:'Reconciliación KPIs y brechas de información', s:3, e:4, clr:'#10b981', pid:'e1' },
+
+    { id:'e2', t:'stage', lb:'Etapa 2: Diagnóstico de la situación actual', s:4, e:7, clr:'#0f172a' },
+    { id:'e2_s1', t:'sub', lb:'Análisis sistema de planificación SAP PM',  s:4, e:6, clr:'#0f172a', pid:'e2' },
+    { id:'e2_s2', t:'sub', lb:'Brecha planificación vs. ejecución',         s:4, e:6, clr:'#0f172a', pid:'e2' },
+    { id:'e2_s3', t:'sub', lb:'Análisis de causas de incumplimiento',       s:5, e:6, clr:'#0f172a', pid:'e2' },
+    { id:'e2_s4', t:'sub', lb:'Evaluación impacto del backlog',             s:5, e:7, clr:'#0f172a', pid:'e2' },
+
+    { id:'e3', t:'stage', lb:'Etapa 3: Análisis de datos', s:7, e:10, clr:'#f59e0b' },
+    { id:'e3_s1', t:'sub', lb:'Procesamiento y análisis de datos',                    s:7, e:9,  clr:'#f59e0b', pid:'e3' },
+    { id:'e3_s2', t:'sub', lb:'Identificación de patrones y tendencias',              s:8, e:9,  clr:'#f59e0b', pid:'e3' },
+    { id:'e3_s3', t:'sub', lb:'Cálculo de indicadores clave (backlog, KPIs)',         s:8, e:10, clr:'#f59e0b', pid:'e3' },
+
+    { id:'e4', t:'stage', lb:'Etapa 4: Diseño de la propuesta de mejora', s:10, e:13, clr:'#3b82f6' },
+    { id:'e4_s1', t:'sub', lb:'Definición modelo gestión del backlog',     s:10, e:12, clr:'#3b82f6', pid:'e4' },
+    { id:'e4_s2', t:'sub', lb:'Diseño criterios priorización de OT',       s:10, e:12, clr:'#3b82f6', pid:'e4' },
+    { id:'e4_s3', t:'sub', lb:'Integración solución / opciones',           s:11, e:13, clr:'#3b82f6', pid:'e4' },
+    { id:'e4_s4', t:'sub', lb:'Validar plan identificado / recomendado',   s:12, e:13, clr:'#3b82f6', pid:'e4' },
+
+    { id:'e5', t:'stage', lb:'Etapa 5: Desarrollo herramienta de apoyo', s:13, e:16, clr:'#8b5cf6' },
+    { id:'e5_s1', t:'sub', lb:'Diseño modelo Excel o dashboard de control',        s:13, e:14, clr:'#8b5cf6', pid:'e5' },
+    { id:'e5_s2', t:'sub', lb:'Incorporación indicadores y dashboard de backlog',  s:14, e:15, clr:'#8b5cf6', pid:'e5' },
+    { id:'e5_s3', t:'sub', lb:'Validación con área de mantenimiento',              s:15, e:16, clr:'#8b5cf6', pid:'e5' },
+
+    { id:'e6', t:'stage', lb:'Etapa 6: Evaluación del impacto y cierre', s:15, e:17, clr:'#ef4444' },
+    { id:'e6_s1', t:'sub', lb:'Evaluación del impacto esperado de la propuesta', s:15, e:16, clr:'#ef4444', pid:'e6' },
+    { id:'e6_s2', t:'sub', lb:'Análisis de retorno en indicadores clave',         s:15, e:17, clr:'#ef4444', pid:'e6' },
+    { id:'e6_s3', t:'sub', lb:'Elaboración de conclusiones del proyecto',         s:16, e:17, clr:'#ef4444', pid:'e6' },
+    { id:'e6_s4', t:'sub', lb:'Preparación del Informe final',                    s:16, e:17, clr:'#ef4444', pid:'e6' }
+  ]
+};
+
+const App = {
+  data: { theme: 'dark', projects: [] },
+  currentId: null,
+
+  init() {
+    this.loadData();
+    this.applyTheme(this.data.theme);
+    this.setupEvents();
+    
+    // Evaluate hash routing
+    if(window.location.hash.startsWith('#proj_')) {
+      const pid = window.location.hash.replace('#proj_', '');
+      if(this.data.projects.find(p=>p.id===pid)) {
+        this.goEditor(pid);
+        return;
+      }
+    }
+    // Abrir directamente la Carta Gantt del proyecto
+    if(this.data.projects.find(p=>p.id===LHD_PROJECT.id)) {
+      this.goEditor(LHD_PROJECT.id);
+      return;
+    }
+    this.goDashboard();
+  },
+
+  loadData() {
+    // Intentar leer preferencias guardadas (tema, ediciones del usuario)
+    let saved = localStorage.getItem(STORE_KEY);
+    if(saved) {
+      try { this.data = JSON.parse(saved); } catch(e) { this.data = { theme:'dark', projects: [] }; }
+    }
+    if(!this.data) this.data = { theme:'dark', projects: [] };
+    if(!this.data.projects) this.data.projects = [];
+    // GARANTÍA OFFLINE: el proyecto LHD viene embebido en el código.
+    // Si no existe en el almacenamiento (p.ej. otro PC, sin caché), se inyecta siempre.
+    if(!this.data.projects.find(p => p.id === LHD_PROJECT.id)) {
+      this.data.projects.unshift(deep(LHD_PROJECT));
+      try { this.saveData(); } catch(e) {}
+    }
+  },
+
+  saveData() { localStorage.setItem(STORE_KEY, JSON.stringify(this.data)); },
+
+  applyTheme(t) {
+    this.data.theme = t;
+    document.documentElement.setAttribute('data-theme', t);
+    document.getElementById('themeToggleBtn').textContent = t==='light' ? '🌙' : '☀️';
+    this.saveData();
+  },
+
+  toggleTheme() { this.applyTheme(this.data.theme === 'light' ? 'dark' : 'light'); },
+
+  // --- Router ---
+  goDashboard() {
+    this.currentId = null;
+    document.getElementById('view-editor').classList.add('hide');
+    document.getElementById('view-dashboard').classList.remove('hide');
+    document.getElementById('navNewBtn').style.display = 'flex';
+    document.getElementById('navTeamBtn').classList.add('hide');
+    document.title = "Gantt Admin Pro V2";
+    window.location.hash = '';
+    this.renderDashboard();
+  },
+
+  goEditor(id) {
+    this.currentId = id;
+    document.getElementById('view-dashboard').classList.add('hide');
+    document.getElementById('view-editor').classList.remove('hide');
+    document.getElementById('navNewBtn').style.display = 'none';
+    document.getElementById('navTeamBtn').classList.remove('hide');
+    window.location.hash = 'proj_' + id;
+    Editor.loadProject(id);
+  },
+
+  // --- Dashboard Logic ---
+  renderDashboard() {
+    const grid = document.getElementById('projectGrid');
+    if(this.data.projects.length === 0) {
+      grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-muted); background: var(--surface); border-radius: 12px; border: 1px dashed var(--border);">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="opacity:0.5; margin-bottom:16px;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <p>No tienes proyectos activos.</p>
+        <button class="btn btn-primary" style="margin-top:16px;" onclick="App.newProjectModal()">Crear el primero</button>
+      </div>`;
+      return;
+    }
+
+    let html = '';
+    this.data.projects.forEach(p => {
+      let d = parseD(p.startDate);
+      let comp = p.rows.filter(x=>x.t==='stage').length;
+      let subs = p.rows.filter(x=>x.t==='sub' || x.t==='item').length;
+      html += `
+        <div class="p-card" onclick="App.goEditor('${p.id}')">
+          <div class="p-card-date">INICIO: ${fmt(d)} · ${p.nw} SEMANAS</div>
+          <div class="p-card-title">${p.title || 'Proyecto Sin Nombre'}</div>
+          <div class="p-card-sub">${p.subtitle || 'Sin descripción...'}</div>
+          <div class="p-card-footer">
+            <div class="p-status">Activo</div>
+            <div style="font-size:12px; color:var(--text-muted);">${comp} Etapas / ${subs} Tareas</div>
+          </div>
+        </div>
+      `;
+    });
+    grid.innerHTML = html;
+  },
+
+  // --- Modals ---
+  closeModals() { document.querySelectorAll('.overlay').forEach(el=>el.classList.remove('open')); Editor.eid = null; },
+  
+  teamModal() {
+    if(!Editor.p) return;
+    document.getElementById('newMemberName').value = '';
+    Editor.renderMembers();
+    document.getElementById('teamModal').classList.add('open');
+  },
+
+  newProjectModal() {
+    document.getElementById('npTitle').value = '';
+    document.getElementById('npSub').value = '';
+    document.getElementById('npDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('npWeeks').value = '16';
+    document.getElementById('newProjectModal').classList.add('open');
+  },
+
+  createProject() {
+    const title = document.getElementById('npTitle').value.trim() || 'Proyecto Nuevo';
+    const subtitle = document.getElementById('npSub').value.trim();
+    const startDate = document.getElementById('npDate').value || new Date().toISOString().split('T')[0];
+    const nw = parseInt(document.getElementById('npWeeks').value) || 16;
+    
+    const newProj = { id: guid(), title, subtitle, startDate, nw, rows: deep(DefaultProjectTemplate.rows), members: [] };
+    this.data.projects.push(newProj);
+    this.saveData();
+    this.closeModals();
+    this.goEditor(newProj.id);
+    toast('Proyecto creado', 'success');
+  },
+
+  setupEvents() {
+    document.querySelectorAll('.overlay').forEach(el => {
+      el.addEventListener('mousedown', e => { if(e.target === el) this.closeModals(); });
+    });
+    document.addEventListener('keydown', e => { if(e.key === 'Escape') this.closeModals(); });
+  }
+};
+
+// ================================================================
+//  EDITOR LOGIC (GANTT CORE)
+// ================================================================
+const Editor = {
+  p: null, // current project pointer
+  eid: null, // edit item id
+
+  loadProject(id) {
+    this.p = App.data.projects.find(x => x.id === id);
+    if(!this.p) { App.goDashboard(); return; }
+    
+    document.title = this.p.title + " | Gantt Pro";
+    document.getElementById('projectTitle').value = this.p.title;
+    document.getElementById('projectSubtitle').textContent = this.p.subtitle || 'Sin descripción';
+    document.getElementById('startInput').value = this.p.startDate;
+    document.getElementById('phTitle').textContent = this.p.title || '';
+    document.getElementById('phSub').textContent = this.p.subtitle || '';
+    this.render();
+  },
+
+  saveData() {
+    App.saveData();
+  },
+
+  saveDataUI() {
+    this.saveData();
+    toast('💾 Cambios guardados', 'success');
+  },
+
+  deleteCurrentProject() {
+    if(!confirm(`¿Eliminar permanentemente "${this.p.title}"?`)) return;
+    App.data.projects = App.data.projects.filter(x => x.id !== this.p.id);
+    App.saveData();
+    App.goDashboard();
+    toast('Proyecto eliminado', 'success');
+  },
+
+  doAddMember() {
+    const name = document.getElementById('newMemberName').value.trim();
+    if(!name || !this.p) return;
+    if(!this.p.members) this.p.members = [];
+    this.p.members.push(name);
+    document.getElementById('newMemberName').value = '';
+    this.renderMembers();
+    this.saveData();
+  },
+  
+  doDeleteMember(i) {
+    if(!this.p || !this.p.members) return;
+    this.p.members.splice(i, 1);
+    this.renderMembers();
+    this.saveData();
+    this.render();
+  },
+
+  renderMembers() {
+    if(!this.p.members) this.p.members = [];
+    const html = this.p.members.map((m, i) => `
+      <div style="display:flex; justify-content:space-between; align-items:center; background: var(--surface-low); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-subtle);">
+        <span>${m}</span>
+        <button class="btn-icon" style="color:var(--danger); background:none; border:none; cursor:pointer;" onclick="Editor.doDeleteMember(${i})" title="Remover">✕</button>
+      </div>
+    `).join('');
+    document.getElementById('teamList').innerHTML = html || '<div style="color:var(--text-muted); font-size:12px;">Sin miembros aún. Añade uno arriba.</div>';
+  },
+
+  onTitleChange(v) { this.p.title = v; },
+  onDateChange(v) { this.p.startDate = v; this.saveData(); this.render(); },
+
+  wkDates(w) {
+    const s = parseD(this.p.startDate);
+    const ws = new Date(s); ws.setDate(s.getDate()+(w-1)*7);
+    const we = new Date(ws); we.setDate(ws.getDate()+6);
+    return {ws,we};
+  },
+
+  curWeek() {
+    const now = new Date(); now.setHours(0,0,0,0);
+    for(let w=1; w<=this.p.nw; w++) {
+      const {ws,we} = this.wkDates(w);
+      if(now>=ws && now<=we) return w;
+    }
+    return -1;
+  },
+
+  render() {
+    const cw = this.curWeek();
+    let h = '<table class="gantt"><thead><tr>';
+    h += '<th class="c-label">ACTIVIDADES / ETAPAS</th>';
+    
+    for (let w=1; w<=this.p.nw; w++) {
+      const {ws,we} = this.wkDates(w), isc = (w === cw);
+      h += `<th class="c-week${isc?' cur-w':''}" title="S${w}: ${fmt(ws)}–${fmt(we)}">
+        <div class="wn">S${w}</div><div class="wd">${fmt(ws)}</div></th>`;
+    }
+    h += '</tr></thead><tbody>';
+
+    if(this.p.rows.length === 0) {
+       h += `<tr><td colspan="${this.p.nw + 1}" style="text-align:center; padding: 40px; color: var(--text-muted);">
+         Pulsar <b style="color:var(--primary)">+ Etapa</b> en la barra superior para comenzar a estructurar la carta gantt.
+       </td></tr>`;
+    } else {
+      this.p.rows.forEach((r,i) => { h += this.buildRow(r, i, cw); });
+    }
+    h += '</tbody></table>';
+    
+    document.getElementById('gc').innerHTML = h;
+    this.buildLegend();
+  },
+
+  buildRow(r, i, cw) {
+    if(r.t==='section') {
+      return `<tr class="r-section"><td class="c-label" colspan="${this.p.nw+1}">${r.lb}</td></tr>`;
+    }
+
+    let trCls = `r-${r.t==='sub'?'subtask':'item'}`;
+    let lblStyle = '';
+
+    if (r.t==='stage') {
+      trCls='r-stage'; 
+      lblStyle=`background:${r.clr};`; // removed color: #fff to let CSS handle it cleanly or just inline white
+    }
+
+    const ra = `<span class="ra">
+      <button onclick="Editor.openEdit('${r.id}');event.stopPropagation()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+      </button>
+      ${r.t!=='stage'?`<button class="del" onclick="Editor.quickDel('${r.id}');event.stopPropagation()">✕</button>`:''}
+    </span>`;
+
+    let chips = '';
+    if(r.assignees && r.assignees.length > 0) {
+      chips = '<div class="chip-group">' + r.assignees.map(a => `<span class="chip"><span class="chip-av">${a.charAt(0).toUpperCase()}</span>${a}</span>`).join('') + '</div>';
+    }
+
+    let html = `<tr class="${trCls}" onclick="Editor.openEdit('${r.id}')">
+      <td class="c-label" style="${lblStyle}" title="${r.lb}">
+        ${r.lb}
+        ${r.t==='stage' ? ` <span style="float:right; opacity:0.6; font-size:10px;">${r.s} – ${r.e}</span>` : ''}
+        ${chips}
+        ${ra}
+      </td>`;
+      
+    for (let w=1; w<=this.p.nw; w++) html += this.buildCell(r, w, cw);
+    html += '</tr>';
+
+    const isLastSub = r.t==='sub' && (i+1>=this.p.rows.length || this.p.rows[i+1].pid!==r.pid);
+    if(r.t==='stage' && (i+1>=this.p.rows.length || this.p.rows[i+1].t==='stage')) {
+        // give stage empty sub button if no subs
+        html += `<tr class="add-row"><td colspan="${this.p.nw+1}">
+        <button class="add-btn-row" onclick="Editor.addSub('${r.id}')">
+           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14"/></svg> Agregar subtarea
+        </button></td></tr>`;
+    }
+    else if(isLastSub) {
+      html += `<tr class="add-row"><td colspan="${this.p.nw+1}">
+        <button class="add-btn-row" onclick="Editor.addSub('${r.pid}')">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14"/></svg> Agregar subtarea
+        </button>
+      </td></tr>`;
+    }
+    return html;
+  },
+
+  buildCell(r, w, cw) {
+    let cls='c-week', content='';
+    const curStyle = w===cw ? ' cur-col' : '';
+
+    if(r.t==='item') {
+      if(r.mt==='bar') {
+        if(w>=r.s && w<=r.e) {
+          if(w===r.s) cls+=' bar-s'; if(w===r.e) cls+=' bar-e';
+          content = `<div class="bv" style="background:${r.clr}"></div>`;
+        }
+      } else {
+        if(w===r.w) {
+          const sym = r.mt==='tri'?'▲': r.mt==='dia'?'◆':'●';
+          content = `<div class="mk" style="color:${r.clr}">${sym}</div>`;
+        }
+      }
+    } else if(r.t==='stage' || r.t==='sub') {
+      if(w>=r.s && w<=r.e) {
+        if(w===r.s) cls+=' bar-s'; if(w===r.e) cls+=' bar-e';
+        content = `<div class="bv" style="background:${r.clr}"></div>`;
+      }
+    }
+    return `<td class="${cls}${curStyle}">${content}</td>`;
+  },
+
+  buildLegend() {
+    const fixed = [
+      {sym:'▲', clr:'#ef4444', lb:'Hito / Sincrónico'},
+      {sym:'◆', clr:'#0F62FE', lb:'Reunión Control'},
+      {sym:'●', clr:'#dbe1ff', lb:'Entrega'}
+    ];
+    let items = [...fixed];
+    
+    // Extact unique colors from stages
+    const stages = this.p.rows.filter(r=>r.t==='stage');
+    stages.forEach(s => {
+      // simplified label
+      items.push({ box: s.clr, lb: s.lb.split(':')[0] || s.lb }); 
+    });
+
+    document.getElementById('leg').innerHTML = items.map(x=>
+      `<span class="li">${x.sym
+        ?`<span style="color:${x.clr};font-size:16px">${x.sym}</span>`
+        :`<span class="lb" style="background:${x.box}"></span>`
+      } <span>${x.lb}</span></span>`
+    ).join('');
+  },
+
+  // --- ACTIONS ---
+  quickDel(id) {
+    const r = this.p.rows.find(x=>x.id===id);
+    if(!r) return;
+    if(!confirm(`¿Eliminar "${r.lb}"?`)) return;
+    this.p.rows = this.p.rows.filter(x=>x.id!==id);
+    this.saveData(); this.render();
+  },
+
+  addSub(pid) {
+    const parent = this.p.rows.find(x=>x.id===pid);
+    if(!parent) return;
+    const nid = guid();
+    // Use slightly lowered opacity color derived from stage 
+    // Simplified: reuse stage color. 
+    const nr = { id:nid, t:'sub', lb:'Nueva subtarea', s:parent.s, e:parent.e, clr: parent.clr, pid };
+    const li = this.p.rows.reduce((last,r,i) => r.pid===pid ? i : last, -1);
+    const pi = this.p.rows.findIndex(x=>x.id===pid);
+    this.p.rows.splice(li>=0 ? li+1 : pi+1, 0, nr);
+    this.saveData(); this.render();
+    setTimeout(() => this.openEdit(nid), 50);
+  },
+
+  addStage() {
+    const nw = this.p.nw;
+    const opts = sel => Array.from({length:nw},(_,i)=> `<option value="${i+1}"${i+1===sel?' selected':''}>S${i+1}</option>`).join('');
+    document.getElementById('sS').innerHTML = opts(1);
+    document.getElementById('sE').innerHTML = opts(Math.min(4, nw));
+    document.getElementById('sLabel').value = '';
+    
+    // Pick next default color
+    const colors = ['#0F62FE','#8A3FFC','#007D79','#FF832B','#DA1E28','#1192E8','#F1C21B'];
+    const existCount = this.p.rows.filter(x=>x.t==='stage').length;
+    document.getElementById('sColor').value = colors[existCount % colors.length] || '#0f62fe';
+    
+    document.getElementById('stageModal').classList.add('open');
+  },
+
+  doAddStage() {
+    const lb = document.getElementById('sLabel').value.trim();
+    if(!lb) { toast('Ingresa nombre de etapa', 'error'); return; }
+    let s = +document.getElementById('sS').value;
+    let e = +document.getElementById('sE').value;
+    if(s>e) [s,e]=[e,s];
+    const clr = document.getElementById('sColor').value;
+    
+    // Find last stage or section to append
+    this.p.rows.push({ id:guid(), t:'stage', lb, s, e, clr });
+    this.saveData(); App.closeModals(); this.render();
+    toast('Etapa creada', 'success');
+  },
+
+  // --- EDIT ROW MODAL ---
+  openEdit(id) {
+    const r = this.p.rows.find(x=>x.id===id);
+    if(!r || r.t==='section') return;
+    this.eid = id;
+    document.getElementById('eLabel').value = r.lb;
+    document.getElementById('eColor').value = r.clr;
+    document.getElementById('mtitle').textContent = r.t==='stage' ? '✏ Editar Etapa' : '✏ Editar Fila';
+    document.getElementById('delBtn').style.display = r.t==='stage' ? 'none' : 'block';
+    
+    const awrap = document.getElementById('eAssigneesWrap');
+    const alist = document.getElementById('eAssigneesList');
+    if(r.t==='sub' || r.t==='item') {
+      awrap.style.display = 'block';
+      let mHtml = '';
+      const mems = this.p.members || [];
+      const asg = r.assignees || [];
+      mems.forEach(m => {
+        const checked = asg.includes(m) ? 'checked' : '';
+        mHtml += `<label class="chk-label"><input type="checkbox" value="${m}" class="asg-chk" ${checked}> ${m}</label>`;
+      });
+      alist.innerHTML = mHtml || '<div style="font-size:12px; color:var(--text-muted)">Añade miembros en la pestaña Equipo.</div>';
+    } else {
+      awrap.style.display = 'none';
+      alist.innerHTML = '';
+    }
+    
+    this.buildWeekFields(r);
+    document.getElementById('editModal').classList.add('open');
+  },
+
+  buildWeekFields(r) {
+    const nw = this.p.nw;
+    const opts = sel => Array.from({length:nw},(_,i)=>`<option value="${i+1}"${i+1===sel?' selected':''}>S${i+1}</option>`).join('');
+    let html = '';
+    if(r.t==='item') {
+      html += `<div class="fg"><label>Tipo de Marcador</label>
+        <select id="eMT" onchange="Editor.onMTChange(this.value)">
+          <option value="tri" ${r.mt==='tri'?'selected':''}>▲ Hito / Sincrónico</option>
+          <option value="dia" ${r.mt==='dia'?'selected':''}>◆ Reunión Control</option>
+          <option value="dot" ${r.mt==='dot'?'selected':''}>● Entrega</option>
+          <option value="bar" ${r.mt==='bar'?'selected':''}>━ Barra de Rango</option>
+        </select></div>`;
+      if(r.mt==='bar') {
+        html += `<div class="frow">
+          <div class="fg"><label>Inicio</label><select id="eS">${opts(r.s)}</select></div>
+          <div class="fg"><label>Fin</label><select id="eE">${opts(r.e)}</select></div>
+        </div>`;
+      } else {
+        html += `<div class="fg"><label>Semana</label><select id="eW">${opts(r.w)}</select></div>`;
+      }
+    } else {
+      html += `<div class="frow">
+        <div class="fg"><label>Inicio</label><select id="eS">${opts(r.s)}</select></div>
+        <div class="fg"><label>Fin</label><select id="eE">${opts(r.e)}</select></div>
+      </div>`;
+    }
+    document.getElementById('eWeeks').innerHTML = html;
+  },
+
+  onMTChange(val) {
+    if(!this.eid) return;
+    const r = this.p.rows.find(x=>x.id===this.eid);
+    if(!r) return;
+    const wf = document.getElementById('eWeeks');
+    const mtHTML = document.getElementById('eMT').outerHTML;
+    const opts = sel => Array.from({length:this.p.nw},(_,i)=>`<option value="${i+1}"${i+1===sel?' selected':''}>S${i+1}</option>`).join('');
+    
+    if(val==='bar') {
+      wf.innerHTML = `<div class="fg"><label>Tipo de Marcador</label>${mtHTML}</div>
+        <div class="frow">
+          <div class="fg"><label>Inicio</label><select id="eS">${opts(r.s||r.w||1)}</select></div>
+          <div class="fg"><label>Fin</label><select id="eE">${opts(r.e||(r.w||1)+1)}</select></div>
+        </div>`;
+    } else {
+      wf.innerHTML = `<div class="fg"><label>Tipo de Marcador</label>${mtHTML}</div>
+        <div class="fg"><label>Semana</label><select id="eW">${opts(r.w||r.s||1)}</select></div>`;
+    }
+    document.getElementById('eMT').onchange = e => Editor.onMTChange(e.target.value);
+    document.getElementById('eMT').value = val;
+  },
+
+  doSave() {
+    const r = this.p.rows.find(x=>x.id===this.eid);
+    if(!r) return;
+    r.lb = document.getElementById('eLabel').value.trim() || r.lb;
+    r.clr = document.getElementById('eColor').value;
+    
+    if(r.t==='item') {
+      const mt = document.getElementById('eMT')?.value;
+      if(mt) {
+        const wasBar=r.mt==='bar', isBar=mt==='bar';
+        r.mt = mt;
+        if(isBar && !wasBar) { r.s=r.w||1; r.e=(r.w||1)+1; delete r.w; }
+        else if(!isBar && wasBar) { r.w=r.s||1; delete r.s; delete r.e; }
+      }
+      if(r.mt==='bar') {
+        r.s = +document.getElementById('eS').value; r.e = +document.getElementById('eE').value;
+        if(r.s>r.e) [r.s,r.e]=[r.e,r.s];
+      } else { r.w = +document.getElementById('eW').value; }
+    } else {
+      r.s = +document.getElementById('eS').value; r.e = +document.getElementById('eE').value;
+      if(r.s>r.e) [r.s,r.e]=[r.e,r.s];
+    }
+    
+    if(r.t==='item' || r.t==='sub') {
+       const chks = document.querySelectorAll('.asg-chk:checked');
+       r.assignees = Array.from(chks).map(c => c.value);
+    }
+    
+    this.saveData(); App.closeModals(); this.render();
+  },
+
+  doDelete() {
+    if(!this.eid) return;
+    this.quickDel(this.eid);
+    App.closeModals();
+  }
+};
+
+window.onload = () => App.init();
+</script>
+</body>
+</html>
